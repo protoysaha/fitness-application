@@ -1,7 +1,6 @@
 
 import dotenv from "dotenv";
-import express from "express"
-const app = express()
+
 dotenv.config({
   path:'./env'
 })
@@ -27,3 +26,10 @@ import sequelize from "./config/database.js";
     console.error("❌ DB connection error: " + err.message);
   }
 })();
+
+
+// Start server
+const PORT = process.env.PORT || 8000;
+app.listen(PORT, () => {
+    console.log(`Server started Successfully on port ${PORT}.`);
+});
