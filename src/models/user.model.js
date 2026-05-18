@@ -88,12 +88,11 @@ const User = sequelize.define(
         },
     }
 );
-user.methods.isPasswordCorrect = async function
-(password){
-    return await bcrypt.compare(password,this.password)
-}
+User.prototype.isPasswordCorrect = async function(password) {
+    return await bcrypt.compare(password, this.password);
+};
 
-user.methods.generateAccessToken = function(){
+User.prototype.generateAccessToken = function(){
     return jwt.sign(
         {
             _id: this._id,
@@ -107,7 +106,7 @@ user.methods.generateAccessToken = function(){
         }
     )
 }
-user.methods.generateRefreshToken = function(){
+User.prototype.generateRefreshToken = function(){
      return jwt.sign(
         {
             _id: this._id,

@@ -1,10 +1,11 @@
 
 import dotenv from "dotenv";
-
-dotenv.config({
-  path:'./env'
-})
 import sequelize from "./config/database.js";
+import { app } from "./app.js";
+dotenv.config();
+// dotenv.config({
+//   path:'./env'
+// })
 // Database Connection
 // mysql  DB connection
 (async () => {
