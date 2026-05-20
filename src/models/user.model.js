@@ -1,7 +1,8 @@
 import { DataTypes } from "sequelize";
 import bcrypt from "bcryptjs";
 import sequelize from "../config/database.js";
-// import Role from "./Role.js";
+
+import jwt from "jsonwebtoken";
 const User = sequelize.define(
     "User",
     {
@@ -11,13 +12,13 @@ const User = sequelize.define(
             primaryKey: true,
         },
         fullname: {
-            type: DataTypes.STRING(100),
+            type: DataTypes.STRING(255),
             allowNull: false,
             trim: true,
             index: true
         },
         email: {
-            type: DataTypes.STRING(100),
+            type: DataTypes.STRING(255),
             allowNull: false,
             unique: true,
             validate: {
@@ -39,16 +40,16 @@ const User = sequelize.define(
             allowNull: false,
         },
         avatar: {
-            type: DataTypes.STRING(100),
+            type: DataTypes.STRING(500),
             allowNull: false,
         },
         cover_image: {
-            type: DataTypes.STRING(100),
+            type: DataTypes.STRING(500),
             allowNull: true,
 
         },
         refresh_token: {
-            type: DataTypes.STRING(100),
+            type: DataTypes.STRING(500),
 
         },
         // role: {
@@ -70,19 +71,19 @@ const User = sequelize.define(
         timestamps: true,
         hooks: {
             beforeCreate: async (user) => {
-                if (!this.isModified("password")) {
-                    if (user.password) {
-                        user.password = await bcrypt.hash(user.password, 12);
-                    }
+             
+                if (user.password) {
+                    user.password = await bcrypt.hash(user.password, 12);
                 }
+                
 
             },
             beforeUpdate: async (user) => {
-                if (!this.isModified("password")) {
-                    if (user.changed("password")) {
-                        user.password = await bcrypt.hash(user.password, 12);
-                    }
+                
+                if (user.changed("password")) {
+                    user.password = await bcrypt.hash(user.password, 12);
                 }
+                
 
             },
         },
@@ -95,7 +96,7 @@ User.prototype.isPasswordCorrect = async function(password) {
 User.prototype.generateAccessToken = function(){
     return jwt.sign(
         {
-            _id: this._id,
+            id: this.id,
             email: this.email,
             username: this.username,
             fullname: this.fullname
@@ -109,7 +110,7 @@ User.prototype.generateAccessToken = function(){
 User.prototype.generateRefreshToken = function(){
      return jwt.sign(
         {
-            _id: this._id,
+            id: this.id,
 
         },
         process.env.REFRESH_TOKEN_SECRET,

@@ -4,7 +4,7 @@ import sequelize from "./config/database.js";
 import { app } from "./app.js";
 dotenv.config();
 // dotenv.config({
-//   path:'./env'
+//   path:'./.env'
 // })
 // Database Connection
 // mysql  DB connection
