@@ -262,38 +262,6 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
 })
 
-
-const changeCurrentPassword = asyncHandler(async (req, res) => {
-
-   const { oldPassword, newPassword, confirmPassword } = req.body
-   if (!(newPassword === confirmPassword)) {
-      throw new ApiError(400, "confirm password does not match")
-
-   }
-
-   const user = await User.findByPk(req.user?.id)
-   const isPasswordCorrect = await user.isPasswordCorrect(oldPassword)
-
-   if (!isPasswordCorrect) {
-
-      throw new ApiError(400, "Invalid old password")
-
-   }
-   user.password = newPassword
-   await user.save({ validateBeforeSave: false })
-
-   return res
-      .status(200)
-      .json(
-         new ApiResponse(200,
-            {},
-            "Password set Successfully"
-         )
-      )
-
-})
-
-
 const getCurrentUser = asyncHandler(async (req, res) => {
 
    return res
@@ -307,145 +275,12 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 })
 
 
-// const updateUserDetails = asyncHandler(async (req, res) => {
 
-
-//    const { fullname, email } = req.body
-//    if (!fullname || !email) {
-//       throw new ApiError(400, "All fields are required")
-
-//    }
-
-//    const user = await User.update(
-//       { fullname: fullname },
-//       { email: email },
-//       { where: { id: req.user.id } },
-//       { attributes: { exclude: ['password', 'refresh_token'] } }
-//    );
-
-//    return res
-//       .status(200)
-//       .json(
-//          new ApiResponse(200,
-//             user,
-//             "User updated successfully"
-//          )
-//       )
-// })
-
-
-const updateUserDetails = asyncHandler(async (req, res) => {
-
-   if (!req.body) {
-      throw new ApiError(400, "Request body is missing");
-   }
-
-   const { fullname, email } = req.body;
-   if (!fullname || !email) {
-      throw new ApiError(400, "All fields are required");
-   }
-
-   const user = await User.update(
-      { fullname, email },
-      { where: { id: req.user.id } }
-   );
-   const updatedUser = await User.findByPk(req.user.id, {
-      attributes: { exclude: ['password', 'refresh_token'] }
-   });
-
-   return res
-      .status(200)
-      .json(
-         new ApiResponse(200,
-            updatedUser, 
-            "User updated successfully"
-         )
-      );
-});
-
-
-const updateUserAvatar = asyncHandler(async (req, res) => {
-
-   const avatarLocalPath = req.file?.path
-
-   if (!avatarLocalPath) {
-      throw new ApiError(400, "avatar file is required")
-   }
-   const currentUser = await User.findByPk(req.user.id, {
-      attributes: ["avatar"],
-   });
-
-   await User.update(
-      { avatar: avatarLocalPath },
-      { where: { id: req.user.id } },
-      { attributes: { exclude: ['password', 'refresh_token'] } }
-   );
-
-   if (currentUser?.avatar) {
-      deleteFile(currentUser.avatar);
-   }
-
-   const updatedUser = await User.findByPk(req.user.id, {
-      attributes: { exclude: ['password', 'refresh_token'] }
-   });
-
-   return res
-      .status(200)
-      .json(
-         new ApiResponse(200,
-            updatedUser,
-            "Avatar updated successfully"
-         )
-      )
-
-})
-
-const updateUserCoverImage = asyncHandler(async (req, res) => {
-
-   const coverImageLocalPath = req.file?.path
-   if (!coverImageLocalPath) {
-      throw new ApiError(400, "cover image file is required")
-   }
-
-   const currentUser = await User.findByPk(req.user.id, {
-      attributes: ["avatar"],
-   });
-
-   await User.update(
-      { cover_image: coverImageLocalPath },
-      { where: { id: req.user.id } },
-      { attributes: { exclude: ['password', 'refresh_token'] } }
-   );
-
-   if (currentUser?.cover_image) {
-      deleteFile(currentUser.cover_image);
-   }
-
-
-   const updatedUser = await User.findByPk(req.user.id, {
-      attributes: { exclude: ['password', 'refresh_token'] }
-   });
-
-   return res
-      .status(200)
-      .json(
-         new ApiResponse(200,
-            updatedUser,
-            "Cover Image updated successfully"
-         )
-      )
-
-})
 
 export {
    registerUser,
    loginUser,
    logoutUser,
    refreshAccessToken,
-   changeCurrentPassword,
    getCurrentUser,
-   updateUserDetails,
-   updateUserAvatar,
-   updateUserCoverImage
-
 }

@@ -52,6 +52,28 @@ const User = sequelize.define(
             type: DataTypes.STRING(500),
 
         },
+        role_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 3, // Default to 'user' role
+            references: {
+                model: "roles",
+                key: "id",
+            },
+            onDelete: 'RESTRICT',
+            onUpdate: 'CASCADE'
+        },
+        is_active: {
+            type: DataTypes.TINYINT,
+            allowNull: false,
+            defaultValue: 1, // 1 = active, 0 = inactive
+            comment: "1 = active, 0 = inactive",
+
+        },
+        last_login: {
+            type: DataTypes.DATE,
+            allowNull: true,
+        },
         // role: {
         //   type: DataTypes.ENUM("user", "admin"),
         //   defaultValue: "user",
@@ -71,29 +93,29 @@ const User = sequelize.define(
         timestamps: true,
         hooks: {
             beforeCreate: async (user) => {
-             
+
                 if (user.password) {
                     user.password = await bcrypt.hash(user.password, 12);
                 }
-                
+
 
             },
             beforeUpdate: async (user) => {
-                
+
                 if (user.changed("password")) {
                     user.password = await bcrypt.hash(user.password, 12);
                 }
-                
+
 
             },
         },
     }
 );
-User.prototype.isPasswordCorrect = async function(password) {
+User.prototype.isPasswordCorrect = async function (password) {
     return await bcrypt.compare(password, this.password);
 };
 
-User.prototype.generateAccessToken = function(){
+User.prototype.generateAccessToken = function () {
     return jwt.sign(
         {
             id: this.id,
@@ -107,8 +129,8 @@ User.prototype.generateAccessToken = function(){
         }
     )
 }
-User.prototype.generateRefreshToken = function(){
-     return jwt.sign(
+User.prototype.generateRefreshToken = function () {
+    return jwt.sign(
         {
             id: this.id,
 
